@@ -3,8 +3,8 @@ import sys
 import os
 import re
 
-with open('README.txt') as file:
-    readme = file.read()
+#with open('README.txt') as file:
+#    readme = file.read()
 
 def find_version(filename):
     _version_re = re.compile(r'__version__ = "(.*)"')
@@ -27,7 +27,7 @@ setup(
     author_email = 'zednis2@rpi.edu',
     url = 'http://github.com/tetherless-world/kleio',
     description = 'A simple python implementation of the W3C PROV data model',
-    long_description = readme,
+#    long_description = readme,
     install_requires = [ 'rdflib', 'rdflib-jsonld' ],
     license = 'LGPLv2+',
     packages = packages,

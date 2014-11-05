@@ -56,3 +56,7 @@ https://github.com/tetherless-world/kleio
 The documentation can be built by doing::
 
     $ python setup.py build_sphinx
+
+And is also available from ReadTheDocs:
+
+http://kleio.readthedocs.org/en/latest

@@ -17,6 +17,14 @@ Getting Started
    license
    faq
 
+Reference
+=========
+
+.. toctree::
+   :maxdepth: 1
+
+   apidocs/modules
+
 Indices and tables
 ==================
 

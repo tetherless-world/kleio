@@ -9,7 +9,7 @@ Getting Started
 Kleio aims to be a pythonic PROV API with support for PROV-O serialization as RDF/XML, N3, Turtle, and JSON-LD.
 
 ```python
-import prov
+from kleio import prov
 
 entity = prov.Entity("test:entity")
 entity.set_label("example entity")

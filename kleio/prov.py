@@ -171,7 +171,7 @@ class Entity(Resource):
         """
         return self.resource_objects(Activity, PROV.wasGeneratedBy)
 
-    def generation(self, activity, id=None, datetime=None):
+    def generation(self, activity, id=None, datetime=None, role=None):
         """
         Specify the activity that generated this agent.
         Return generation relationship which can be used to further qualify the relationship.
@@ -184,6 +184,8 @@ class Entity(Resource):
         generation.set_activity(activity)
         if datetime is not None:
             generation.set_at_time(datetime)
+        if role is not None:
+            generation.set_had_role(role)
         self.set_was_generated_by(activity)
         return generation
 

@@ -55,7 +55,7 @@ More information is available on the project webpage:
 
 https://github.com/tetherless-world/kleio
 
-Continuous integration status details available from travis.ci:
+Continuous integration status details available from Travis CI:
 
 [![Build Status](https://travis-ci.org/tetherless-world/kleio.svg?branch=master)](https://travis-ci.org/tetherless-world/kleio)
 

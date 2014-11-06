@@ -31,6 +31,8 @@ def clear_graph():
 def serialize(format="xml"):
     if format == "json-ld":
         return graph.serialize(format='json-ld', indent=4).decode()
+    elif format == "nt":
+        return graph.serialize(format='nt').decode()
     else:
         return graph.serialize(format=format, encoding="UTF-8").decode(encoding="UTF-8")
 

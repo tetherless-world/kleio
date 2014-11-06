@@ -217,5 +217,18 @@ class TestPROV(unittest.TestCase):
         jsonld = prov.serialize(format="json-ld")
         self.assertIsNotNone(jsonld)
 
+    def test_serialize_n3(self):
+        entity = prov.Entity("test:entity")
+        entity.set_label("example entity")
+        n3 = prov.serialize(format="n3")
+        self.assertIsNotNone(n3)
+
+    def test_serialize_ntriples(self):
+        entity = prov.Entity("test:entity")
+        entity.set_label("example entity")
+        ntriples = prov.serialize(format="nt")
+        self.assertIsNotNone(ntriples)
+
+
 if __name__ == '__main__':
     unittest.main()

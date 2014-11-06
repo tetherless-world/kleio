@@ -2,8 +2,6 @@ __author__ = 'szednik'
 
 from rdflib import Literal, BNode, Namespace, URIRef, Graph, RDF, RDFS, XSD
 import rdflib.resource
-import json
-import pkgutil
 
 """
 @newfield iri: IRI
@@ -12,9 +10,6 @@ import pkgutil
 PROV = Namespace("http://www.w3.org/ns/prov#")
 graph = Graph()
 graph.bind("prov", PROV)
-
-#context = json.loads(pkgutil.get_data('prov', 'contexts/prov.jsonld').decode())
-context = None
 
 config = {
     "useInverseProperties": False
@@ -35,7 +30,7 @@ def clear_graph():
 
 def serialize(format="xml"):
     if format == "json-ld":
-        return graph.serialize(format='json-ld', context=context, indent=4).decode()
+        return graph.serialize(format='json-ld', indent=4).decode()
     else:
         return graph.serialize(format=format, encoding="UTF-8").decode(encoding="UTF-8")
 
@@ -74,12 +69,21 @@ class Resource(rdflib.resource.Resource):
         return [literal.toPython() for literal in self.graph.objects(self.identifier, prop)]
 
     def set_label(self, label):
+        """
+        Set RDF label of resource
+        """
         self.add(RDFS.label, Literal(label))
 
     def get_label(self):
+        """
+        Return RDFS label of resource
+        """
         return self.literal_objects(RDFS.label)
 
     def add_type(self, rdf_type):
+        """
+        Add RDF type of resource
+        """
         self.add(RDF.type, rdf_type)
 
 
@@ -87,8 +91,8 @@ class Entity(Resource):
     """
     An entity is a physical, digital, conceptual, or other kind of thing with some fixed aspects; entities may be real
     or imaginary.
-    @iri: U{http://www.w3.org/ns/prov#Entity}
-    @see: U{http://www.w3.org/TR/prov-o/#Entity}
+    @iri: http://www.w3.org/ns/prov#Entity
+    @see: http://www.w3.org/TR/prov-o/#Entity
     """
 
     def __init__(self, id=None):
@@ -97,14 +101,8 @@ class Entity(Resource):
 
     def set_was_influenced_by(self, resource):
         """
-        Influence is the capacity of an entity, activity, or agent to have an effect on the character, development, or
-        behavior of another by means of usage, start, end, generation, invalidation, communication, derivation,
-        attribution, association, or delegation.
-        @iri: U{http://www.w3.org/ns/prov#wasInfluencedBy}
-        @see: U{http://www.w3.org/TR/prov-o/#wasInfluencedBy}
-        @param resource: entity, activity, or agent which influenced this entity
-        @type resource: L{Resource}
-        @return: None
+        Specify the resource that influenced this entity.
+        @iri: http://www.w3.org/ns/prov#wasInfluencedBy
         """
         resource = Resource.ensure_type(resource)
         self.add(PROV.wasInfluencedBy, resource)
@@ -112,17 +110,16 @@ class Entity(Resource):
 
     def get_was_influenced_by(self):
         """
-        Influence is the capacity of an entity, activity, or agent to have an effect on the character, development, or
-        behavior of another by means of usage, start, end, generation, invalidation, communication, derivation,
-        attribution, association, or delegation.
-        @iri: U{http://www.w3.org/ns/prov#wasInfluencedBy}
-        @see: U{http://www.w3.org/TR/prov-o/#wasInfluencedBy}
-        @return: List of resources, entities, activities or agents which have influenced this entity
-        @rtype: L{Resource}[]
+        Return all resources that influenced this entity.
+        @iri: http://www.w3.org/ns/prov#wasInfluencedBy
         """
         return self.resource_objects(Resource, PROV.wasInfluencedBy)
 
     def set_was_attributed_to(self, agent):
+        """
+        Specify the agent this entity was attributed to.
+        @iri: http://www.w3.org/ns/prov#wasAttributedTo
+        """
         agent = Agent.ensure_type(agent)
         self.set_was_influenced_by(agent)
         self.add(PROV.wasAttributedTo, agent)
@@ -130,9 +127,18 @@ class Entity(Resource):
             agent.add(PROV.contributed, self)
 
     def get_was_attributed_to(self):
+        """
+        Return all agents this entity was attributed to.
+        @iri: http://www.w3.org/ns/prov#wasAttributedTo
+        """
         return self.resource_objects(Agent, PROV.wasAttributedTo)
 
     def attribution(self, agent, id=None):
+        """
+        Specify the agent this entity was attributed to.
+        Return attribution relationship which can be used to further qualify the relationship.
+        @iri: http://www.w3.org/ns/prov#qualifiedAttribution
+        """
         attribution = Attribution(id)
         self.add(PROV.qualifiedAttribution, attribution)
         if using_inverse_properties():
@@ -142,18 +148,35 @@ class Entity(Resource):
         return attribution
 
     def get_attribution(self):
+        """
+        Return all attribution relationships of this entity.
+        @iri: http://www.w3.org/ns/prov#qualifiedAttribution
+        """
         return self.resource_objects(Attribution, PROV.qualifiedAttribution)
 
     def set_was_generated_by(self, activity):
+        """
+        Specify the activity that generated this agent.
+        @iri: http://www.w3.org/ns/prov#wasGeneratedBy
+        """
         activity = Activity.ensure_type(activity)
         self.set_was_influenced_by(activity)
         self.add(PROV.wasGeneratedBy, activity)
         activity.add(PROV.generated, self)
 
     def get_was_generated_by(self):
+        """
+        Return all activities this entity was generated by.
+        @iri: http://www.w3.org/ns/prov#wasGeneratedBy
+        """
         return self.resource_objects(Activity, PROV.wasGeneratedBy)
 
     def generation(self, activity, id=None, datetime=None):
+        """
+        Specify the activity that generated this agent.
+        Return generation relationship which can be used to further qualify the relationship.
+        @iri: http://www.w3.org/ns/prov#qualifiedGeneration
+        """
         generation = Generation(id)
         self.add(PROV.qualifiedGeneration, generation)
         if using_inverse_properties():
@@ -165,9 +188,17 @@ class Entity(Resource):
         return generation
 
     def get_generation(self):
+        """
+        Return all generation relationships of this entity.
+        @iri: http://www.w3.org/ns/prov#qualifiedGeneration
+        """
         return self.resource_objects(Generation, PROV.qualifiedGeneration)
 
     def set_was_derived_from(self, entity):
+        """
+        Specify the entity this entity was derived from.
+        @iri: http://www.w3.org/ns/prov#wasDerivedFrom
+        """
         entity = Entity.ensure_type(entity)
         self.set_was_influenced_by(entity)
         self.add(PROV.wasDerivedFrom, entity)
@@ -175,9 +206,18 @@ class Entity(Resource):
             entity.add(PROV.hadDerivation, self)
 
     def get_was_derived_from(self):
+        """
+        Return all entities this entity was derived from.
+        @iri: http://www.w3.org/ns/prov#wasDerivedFrom
+        """
         return self.resource_objects(Entity, PROV.wasDerivedFrom)
 
     def derivation(self, entity, id=None):
+        """
+        Specify the entity this entity was derived from.
+        Return derivation relationship which can be used to further qualify the relationship.
+        @iri: http://www.w3.org/ns/prov#qualifiedDerivation
+        """
         derivation = Derivation(id)
         self.add(PROV.qualifiedDerivation, derivation)
         if using_inverse_properties():
@@ -187,9 +227,17 @@ class Entity(Resource):
         return derivation
 
     def get_derivation(self):
+        """
+        Return all Derivation relationships of this entity.
+        @iri: http://www.w3.org/ns/prov#qualifiedDerivation
+        """
         return self.resource_objects(Derivation, PROV.qualifiedGeneration)
 
     def set_was_revision_of(self, entity):
+        """
+        Specify the entity this entity was a revision of.
+        @iri: http://www.w3.org/ns/prov#wasRevisionOf
+        """
         entity = Entity.ensure_type(entity)
         self.set_was_derived_from(entity)
         self.add(PROV.wasRevisionOf, entity)
@@ -197,9 +245,18 @@ class Entity(Resource):
             entity.add(PROV.hadRevision, self)
 
     def get_was_revision_of(self):
+        """
+        Return all entities this entity was a revision of.
+        @iri: http://www.w3.org/ns/prov#wasRevisionOf
+        """
         return self.resource_objects(Entity, PROV.wasRevisionOf)
 
     def revision(self, entity, id=None):
+        """
+        Specify the entity this entity was a revision of.
+        Return revision relationship which can be used to further qualify the relationship.
+        @iri: http://www.w3.org/ns/prov#qualifiedRevision
+        """
         entity = Entity.ensure_type(entity)
         revision = Revision(id)
         revision.set_entity(entity)
@@ -210,9 +267,17 @@ class Entity(Resource):
         return revision
 
     def get_revision(self):
+        """
+        Return all Revision relationships of this entity.
+        @iri: http://www.w3.org/ns/prov#qualifiedRevision
+        """
         return self.resource_objects(Revision, PROV.qualifiedRevision)
 
     def set_was_quoted_from(self, entity):
+        """
+        Specify the entity this entity was quoted from.
+        @iri: http://www.w3.org/ns/prov#wasQuotedFrom
+        """
         entity = Entity.ensure_type(entity)
         self.set_was_derived_from(entity)
         self.add(PROV.wasQuotedFrom, entity)
@@ -220,9 +285,18 @@ class Entity(Resource):
             entity.add(PROV.quotedAs, self)
 
     def get_was_quoted_from(self):
+        """
+        Return all entities this entity was quoted from.
+        @iri: http://www.w3.org/ns/prov#wasQuotedFrom
+        """
         return self.resource_objects(Entity, PROV.wasQuotedFrom)
 
     def quotation(self, entity, id=None):
+        """
+        Specify the entity this entity was quoted from.
+        Return quotation relationship which can be used to further qualify the relationship.
+        @iri: http://www.w3.org/ns/prov#qualifiedQuotation
+        """
         entity = Entity.ensure_type(entity)
         quotation = Quotation(id)
         quotation.set_entity(entity)
@@ -233,9 +307,17 @@ class Entity(Resource):
         return quotation
 
     def get_quotation(self):
+        """
+        Return all quotation relationships of this entity.
+        @iri: http://www.w3.org/ns/prov#qualifiedQuotation
+        """
         return self.resource_objects(Quotation, PROV.qualifiedQuotation)
 
     def set_had_primary_source(self, entity):
+        """
+        Specify the primary source of this entity.
+        @iri: http://www.w3.org/ns/prov#hadPrimarySource
+        """
         entity = Entity.ensure_type(entity)
         self.set_was_derived_from(entity)
         self.add(PROV.hadPrimarySource, entity)
@@ -243,9 +325,18 @@ class Entity(Resource):
             entity.add(PROV.wasPrimarySourceOf, self)
 
     def get_had_primary_source(self):
+        """
+        Return all entities that are a primary source for this entity.
+        @iri: http://www.w3.org/ns/prov#hadPrimarySource
+        """
         return self.resource_objects(Entity, PROV.hadPrimarySource)
 
     def primary_source(self, entity, id=None):
+        """
+        Specify the primary source of this entity.
+        Return primary source relationship which can be used to further qualify the relationship.
+        @iri: http://www.w3.org/ns/prov#qualifiedPrimarySource
+        """
         entity = Entity.ensure_type(entity)
         primary_source = PrimarySource(id)
         primary_source.set_entity(entity)
@@ -256,18 +347,35 @@ class Entity(Resource):
         return primary_source
 
     def get_primary_source(self):
+        """
+        Return all primary source relationships of this entity.
+        @iri: http://www.w3.org/ns/prov#qualifiedPrimarySource
+        """
         return self.resource_objects(PrimarySource, PROV.qualifiedPrimarySource)
 
     def set_was_invalidated_by(self, activity):
+        """
+        Specify the activity that invalidated this entity.
+        @iri: http://www.w3.org/ns/prov#wasInvalidatedBy
+        """
         activity = Activity.ensure_type(activity)
         self.set_was_influenced_by(activity)
         self.add(PROV.wasInvalidatedBy, activity)
         activity.add(PROV.invalidated, self)
 
     def get_was_invalidated_by(self):
+        """
+        Return all activities that invalidated this entity.
+        @iri: http://www.w3.org/ns/prov#wasInvalidatedBy
+        """
         return self.resource_objects(Activity, PROV.wasInvalidatedBy)
 
     def invalidation(self, activity, id=None, datetime=None):
+        """
+        Specify the activity that invalidated this entity.
+        Return invalidation relationship which can be used to further qualify the relationship.
+        @iri: http://www.w3.org/ns/prov#qualifiedInvalidation
+        """
         activity = Activity.ensure_type(activity)
         invalidation = Invalidation(id)
         invalidation.set_activity(activity)
@@ -280,17 +388,33 @@ class Entity(Resource):
         return invalidation
 
     def get_invalidation(self):
+        """
+        Return all invalidation relationships of this entity.
+        @iri: http://www.w3.org/ns/prov#qualifiedInvalidation
+        """
         return self.resource_objects(Invalidation, PROV.qualifiedInvalidation)
 
     def set_alternate_of(self, entity):
+        """
+        Specify an alternate of this entity.
+        @iri: http://www.w3.org/ns/prov#alternateOf
+        """
         entity = Entity.ensure_type(entity)
         self.add(PROV.alternateOf, entity)
         entity.add(PROV.alternateOf, self)
 
     def get_alternate_of(self):
+        """
+        Return all entities that are alternates of this entity.
+        @iri: http://www.w3.org/ns/prov#alternateOf
+        """
         return self.resource_objects(Entity, PROV.alternateOf)
 
     def set_specialization_of(self, entity):
+        """
+        Specify an specialization of this entity.
+        @iri: http://www.w3.org/ns/prov#specializationOf
+        """
         entity = Entity.ensure_type(entity)
         self.set_alternate_of(entity)
         self.add(PROV.specializationOf, entity)
@@ -298,33 +422,69 @@ class Entity(Resource):
             entity.add(PROV.generalizationOf, self)
 
     def get_specialization_of(self):
+        """
+        Return all entities that that this entity is a specialization of.
+        @iri: http://www.w3.org/ns/prov#specializationOf
+        """
         return self.resource_objects(Entity, PROV.specializationOf)
 
     def set_at_location(self, location):
+        """
+        Specify a location for this entity.
+        @iri: http://www.w3.org/ns/prov#atLocation
+        """
         location = Location.ensure_type(location)
         self.add(PROV.atLocation, location)
         if using_inverse_properties():
             location.add(PROV.locationOf, self)
 
     def get_at_location(self):
+        """
+        Return all locations for this entity.
+        @iri: http://www.w3.org/ns/prov#atLocation
+        """
         return self.resource_objects(Location, PROV.atLocation)
 
     def set_generated_at_time(self, datetime):
+        """
+        Specify a generation datetime for this entity.
+        @iri: http://www.w3.org/ns/prov#generatedAtTime
+        """
         self.set(PROV.generatedAtTime, Literal(datetime, datatype=XSD.dateTime))
 
     def get_generated_at_time(self):
+        """
+        Return the datetime at which this entity was generated.
+        @iri: http://www.w3.org/ns/prov#generatedAtTime
+        """
         return Literal(self.value(PROV.generatedAtTime), datatype=XSD.dateTime).toPython()
 
     def set_invalidated_at_time(self, datetime):
-        self.set(PROV.invalidatedAtTIme, Literal(datetime, datatype=XSD.dateTime))
+        """
+        Specify an invalidation datetime for this entity.
+        @iri: http://www.w3.org/ns/prov#invalidatedAtTime
+        """
+        self.set(PROV.invalidatedAtTime, Literal(datetime, datatype=XSD.dateTime))
 
     def get_invalidated_at_time(self):
+        """
+        Return the datetime at which this entity was invalidated.
+        @iri: http://www.w3.org/ns/prov#invalidatedAtTime
+        """
         return Literal(self.value(PROV.invalidatedAtTime), datatype=XSD.dateTime).toPython()
 
     def set_value(self, value):
+        """
+        Specify a value for this entity.
+        @iri: http://www.w3.org/ns/prov#value
+        """
         self.set(PROV.value, Literal(value))
 
     def get_value(self):
+        """
+        Return the value for this entity.
+        @iri: http://www.w3.org/ns/prov#value
+        """
         return Literal(self.value(PROV.value)).toPython()
 
 
@@ -354,6 +514,10 @@ class Collection(Entity):
         self.add_type(PROV.Collection)
 
     def set_had_member(self, entity):
+        """
+        Specify a member entity of this collection.
+        @iri: http://www.w3.org/ns/prov#hadMember
+        """
         entity = Entity.ensure_type(entity)
         self.set_was_influenced_by(entity)
         self.add(PROV.hadMember, entity)
@@ -361,9 +525,16 @@ class Collection(Entity):
             entity.add(PROV.wasMemberOf, self)
 
     def get_had_member(self):
+        """
+        Return all entities that were members of this collection.
+        @iri: http://www.w3.org/ns/prov#hadMember
+        """
         return self.resource_objects(Entity, PROV.hadMember)
 
     def get_member_count(self):
+        """
+        Return a count of the members in this collection.
+        """
         return len(self.graph.objects(self.identifier, PROV.hadMember))
 
 
@@ -379,9 +550,15 @@ class EmptyCollection(Collection):
         self.add_type(PROV.EmptyCollection)
 
     def set_had_member(self, entity):
+        """
+        do nothing (no members allowed for an empty collection)
+        """
         pass
 
     def get_had_member(self):
+        """
+        Return an empty list
+        """
         return []
 
 
@@ -424,20 +601,40 @@ class Activity(Resource):
         self.add_type(PROV.Activity)
 
     def set_influenced(self, entity):
+        """
+        Specify an entity that was influenced by this activity.
+        @iri: http://www.w3.org/ns/prov#influenced
+        """
         entity = Entity.ensure_type(entity)
         self.add(PROV.influenced, entity)
 
     def get_influenced(self):
+        """
+        Return all entities that were influenced by this activity.
+        @iri: http://www.w3.org/ns/prov#influenced
+        """
         return self.resource_objects(Entity, PROV.influenced)
 
     def set_was_influenced_by(self, resource):
+        """
+        Specify a resource that influenced this activity.
+        @iri: http://www.w3.org/ns/prov#wasInfluencedBy
+        """
         self.add(PROV.wasInfluencedBy, resource)
         resource.add(PROV.influenced, self)
 
     def get_was_influenced_by(self):
+        """
+        Return all resources that influenced this activity.
+        @iri: http://www.w3.org/ns/prov#wasInfluencedBy
+        """
         return [self.graph.objects(self.identifier, PROV.influenced)]
 
     def set_used(self, entity):
+        """
+        Specify an entity that was used by this activity.
+        @iri: http://www.w3.org/ns/prov#used
+        """
         entity = Entity.ensure_type(entity)
         self.set_was_influenced_by(entity)
         self.add(PROV.used, entity)
@@ -445,9 +642,18 @@ class Activity(Resource):
             entity.add(PROV.wasUsedBy, self)
 
     def get_used(self):
+        """
+        Return all entities used by this activity.
+        @iri: http://www.w3.org/ns/prov#used
+        """
         return self.resource_objects(Entity, PROV.used)
 
     def usage(self, entity, id=None, datetime=None, role=None, location=None):
+        """
+        Specify an entity that was used by this activity.
+        Return usage relationship which can be used to further qualify the relationship.
+        @iri: http://www.w3.org/ns/prov#qualifiedUsage
+        """
         usage = Usage(id)
         usage.set_entity(entity)
         if datetime is not None:
@@ -463,27 +669,51 @@ class Activity(Resource):
         return usage
 
     def get_usage(self):
+        """
+        Return all usage relationships of this activity.
+        @iri: http://www.w3.org/ns/prov#qualifiedUsage
+        """
         return self.resource_objects(Usage, PROV.qualifiedUsage)
 
     def set_generated(self, entity):
+        """
+        Specify an entity that was generated by this activity.
+        @iri: http://www.w3.org/ns/prov#generated
+        """
         entity = Entity.ensure_type(entity)
         self.set_influenced(entity)
         self.add(PROV.generated, entity)
         entity.add(PROV.wasGeneratedBy, self)
 
     def get_generated(self):
+        """
+        Return all entities generated by this activity.
+        @iri: http://www.w3.org/ns/prov#generated
+        """
         return self.resource_objects(Entity, PROV.generated)
 
     def set_invalidated(self, entity):
+        """
+        Specify an entity that was invalidated by this activity.
+        @iri: http://www.w3.org/ns/prov#invalidated
+        """
         entity = Entity.ensure_type(entity)
         self.set_influenced(entity)
         self.add(PROV.invalidated, entity)
         entity.add(PROV.wasInvalidatedBy, self)
 
     def get_invalidated(self):
+        """
+        Return all entities invalided by this activity.
+        @iri: http://www.w3.org/ns/prov#invalidated
+        """
         return self.resource_objects(Entity, PROV.invalidated)
 
     def set_was_informed_by(self, activity):
+        """
+        Specify an activity that informed this activity.
+        @iri: http://www.w3.org/ns/prov#wasInformedBy
+        """
         activity = Activity.ensure_type(activity)
         self.set_was_influenced_by(activity)
         self.add(PROV.wasInformedBy, activity)
@@ -491,9 +721,18 @@ class Activity(Resource):
             activity.add(PROV.informed, activity)
 
     def get_was_informed_by(self):
+        """
+        Return all activities that informed this activity.
+        @iri: http://www.w3.org/ns/prov#wasInformedBy
+        """
         return self.resource_objects(Activity, PROV.wasInformedBy)
 
     def communication(self, activity, id=None, role=None):
+        """
+        Specify an activity that informed this activity.
+        Return communication relationship which can be used to further qualify the relationship.
+        @iri: http://www.w3.org/ns/prov#qualifiedCommunication
+        """
         communication = Communication(id)
         communication.set_activity(activity)
         if role is not None:
@@ -505,9 +744,17 @@ class Activity(Resource):
         return communication
 
     def get_communication(self):
+        """
+        Return all communication relationships for this activity.
+        @iri: http://www.w3.org/ns/prov#qualifiedCommunication
+        """
         return self.resource_objects(Communication, PROV.qualifiedCommunication)
 
     def set_was_associated_with(self, agent):
+        """
+        Specify an agent that was associated with this activity.
+        @iri: http://www.w3.org/ns/prov#wasAssociatedWith
+        """
         agent = Agent.ensure_type(agent)
         self.set_was_influenced_by(agent)
         self.add(PROV.wasAssociatedWith, agent)
@@ -515,9 +762,18 @@ class Activity(Resource):
             agent.add(PROV.wasAssociateFor, self)
 
     def get_was_associated_with(self):
+        """
+        Return all agents associated with this activity
+        @iri: http://www.w3.org/ns/prov#wasAssociatedWith
+        """
         return self.resource_objects(Agent, PROV.wasAssociatedWith)
 
     def association(self, agent, id=None, plan=None, role=None):
+        """
+        Specify an agent that was associated with this activity.
+        Return association relationship which can be used to further qualify the relationship.
+        @iri: http://www.w3.org/ns/prov#qualifiedAssociation
+        """
         association = Association(id)
         association.set_agent(agent)
         if role is not None:
@@ -531,9 +787,17 @@ class Activity(Resource):
         return association
 
     def get_association(self):
+        """
+        Return all association relationships for this activity.
+        @iri: http://www.w3.org/ns/prov#qualifiedAssociation
+        """
         return self.resource_objects(Association, PROV.qualifiedAssociation)
 
     def set_was_started_by(self, entity):
+        """
+        Specify the entity that started this activity.
+        @iri: http://www.w3.org/ns/prov#wasStartedBy
+        """
         entity = Entity.ensure_type(entity)
         self.set_was_influenced_by(entity)
         self.add(PROV.wasStartedBy, entity)
@@ -541,9 +805,18 @@ class Activity(Resource):
             entity.add(PROV.started, self)
 
     def get_was_started_by(self):
+        """
+        Return all entities that started this activity.
+        @iri: http://www.w3.org/ns/prov#wasStartedBy
+        """
         return self.resource_objects(Entity, PROV.wasStartedBy)
 
     def start(self, entity, id=None, datetime=None, location=None):
+        """
+        Specify the entity that started this activity.
+        Return start relationship which can be used to further qualify the relationship.
+        @iri: http://www.w3.org/ns/prov#qualifiedStart
+        """
         entity = Entity.ensure_type(entity)
         start = Start(id)
         start.set_entity(entity)
@@ -558,9 +831,17 @@ class Activity(Resource):
         return start
 
     def get_start(self):
+        """
+        Return all start relationships for this activity.
+        @iri: http://www.w3.org/ns/prov#qualifiedStart
+        """
         return self.resource_objects(Start, PROV.qualifiedStart)
 
     def set_was_ended_by(self, entity):
+        """
+        Specify the entity that ended this activity.
+        @iri: http://www.w3.org/ns/prov#wasEndedBy
+        """
         entity = Entity.ensure_type(entity)
         self.set_was_influenced_by(entity)
         self.add(PROV.wasEndedBy, entity)
@@ -568,9 +849,18 @@ class Activity(Resource):
             entity.add(PROV.ended, self)
 
     def get_was_ended_by(self):
+        """
+        Return all entities that ended this activity.
+        @iri: http://www.w3.org/ns/prov#wasEndedBy
+        """
         return self.resource_objects(Entity, PROV.wasEndedBy)
 
     def end(self, entity, id=None, datetime=None, location=None):
+        """
+        Specify the entity that ended this activity.
+        Return end relationship which can be used to further qualify the relationship.
+        @iri: http://www.w3.org/ns/prov#qualifiedEnd
+        """
         entity = Entity.ensure_type(entity)
         end = End(id)
         end.set_entity(entity)
@@ -585,27 +875,55 @@ class Activity(Resource):
         return end
 
     def get_end(self):
+        """
+        Return all end relationships for this activity.
+        @iri: http://www.w3.org/ns/prov#qualifiedEnd
+        """
         return self.resource_objects(End, PROV.qualifiedEnd)
 
     def set_at_location(self, location):
+        """
+        Specify a location for this activity.
+        @iri: http://www.w3.org/ns/prov#atLocation
+        """
         location = Location.ensure_type(location)
         self.add(PROV.atLocation, location)
         if using_inverse_properties():
             location.add(PROV.locationOf, self)
 
     def get_at_location(self):
+        """
+        Return all locations for this activity.
+        @iri: http://www.w3.org/ns/prov#atLocation
+        """
         return self.resource_objects(Location, PROV.atLocation)
 
     def set_started_at_time(self, datetime):
+        """
+        Specified a start datetime for this activity.
+        @iri: http://www.w3.org/ns/prov#startedAtTime
+        """
         self.set(PROV.startedAtTime, Literal(datetime, datatype=XSD.dateTime))
 
     def get_started_at_time(self):
+        """
+        Return the start datetime for this activity.
+        @iri: http://www.w3.org/ns/prov#startedAtTime
+        """
         return Literal(self.value(PROV.startedAtTime), datatype=XSD.dateTime).toPython()
 
     def set_ended_at_time(self, datetime):
+        """
+        Specify a end datetime for this activity.
+        @iri: http://www.w3.org/ns/prov#endedAtTime
+        """
         self.set(PROV.endedAtTime, Literal(datetime, datatype=XSD.dateTime))
 
     def get_ended_at_time(self):
+        """
+        Return the end datetime for this activity.
+        @iri: http://www.w3.org/ns/prov#endedAtTime
+        """
         return Literal(self.value(PROV.endedAtTime), datatype=XSD.dateTime).toPython()
 
 
@@ -622,12 +940,24 @@ class Agent(Resource):
         self.add_type(PROV.Agent)
 
     def set_was_influenced_by(self, resource):
+        """
+        Specify a resource that influenced this agent.
+        @iri: http://www.w3.org/ns/prov#wasInfluencedBy
+        """
         self.add(PROV.wasInfluencedBy, resource)
 
     def get_was_influenced_by(self):
+        """
+        Return all resources that influenced this agent.
+        @iri: http://www.w3.org/ns/prov#wasInfluencedBy
+        """
         return self.resource_objects(Resource, PROV.wasInfluencedBy)
 
     def set_acted_on_behalf_of(self, agent):
+        """
+        Specify an agent that this agent acted on behalf of (i.e. was delegate for).
+        @iri: http://www.w3.org/ns/prov#actedOnBehalfOf
+        """
         agent = Agent.ensure_type(agent)
         self.set_was_influenced_by(agent)
         self.add(PROV.actedOnBehalfOf, agent)
@@ -635,9 +965,18 @@ class Agent(Resource):
             agent.add(PROV.hadDelegate, self)
 
     def get_acted_on_behalf_of(self):
+        """
+        Return all agents this agent has acted on behalf of.
+        @iri: http://www.w3.org/ns/prov#actedOnBehalfOf
+        """
         return self.resource_objects(Agent, PROV.actedOnBehalfOf)
 
     def delegation(self, agent, id=None, role=None):
+        """
+        Specify an agent that this agent acted on behalf of (i.e. was delegate for).
+        Return delegation relationship which can be used to further qualify the relationship.
+        @iri: http://www.w3.org/ns/prov#qualifiedDelegation
+        """
         delegation = Delegation(id)
         delegation.set_agent(agent)
         if role is not None:
@@ -649,13 +988,28 @@ class Agent(Resource):
         return delegation
 
     def get_delegation(self):
+        """
+        Return all delegation relationships for this agent.
+        @iri: http://www.w3.org/ns/prov#qualifiedDelegation
+        """
         return self.resource_objects(Delegation, PROV.qualifiedDelegation)
 
     def set_at_location(self, location):
+        """
+        Specify a location for this agent.
+        @iri: http://www.w3.org/ns/prov#atLocation
+        """
         location = Location.ensure_type(location)
         self.add(PROV.atLocation, location)
         if using_inverse_properties():
             location.add(PROV.locationOf, self)
+
+    def get_at_location(self):
+        """
+        Return all locations for this agent.
+        @iri: http://www.w3.org/ns/prov#atLocation
+        """
+        return self.resource_objects(Location, PROV.atLocation)
 
 
 class Person(Agent):
@@ -709,25 +1063,49 @@ class InstantaneousEvent(Resource):
         self.add_type(PROV.InstantaneousEvent)
 
     def set_at_location(self, location):
+        """
+        Specify a location for this event.
+        @iri: http://www.w3.org/ns/prov#atLocation
+        """
         location = Location.ensure_type(location)
         self.add(PROV.atLocation, location)
         if using_inverse_properties():
             location.add(PROV.locationOf, self)
 
     def get_at_location(self):
+        """
+        Return all locations for this event.
+        @iri: http://www.w3.org/ns/prov#atLocation
+        """
         return self.resource_objects(Location, PROV.atLocation)
 
     def set_at_time(self, datetime):
+        """
+        Specify a datetime for this event.
+        @iri: http://www.w3.org/ns/prov#atTime
+        """
         self.add(PROV.atTime, Literal(datetime, datatype=XSD.dateTime))
 
     def get_at_time(self):
+        """
+        Return the datetime for this event.
+        @iri: http://www.w3.org/ns/prov#atTime
+        """
         return Literal(self.value(PROV.atTime), datatype=XSD.dateTime).toPython()
 
     def set_had_role(self, role):
+        """
+        specify the role associated with this event.
+        @iri: http://www.w3.org/ns/prov#hadRole
+        """
         role = Role.ensure_type(role)
         self.add(PROV.hadRole, role)
 
     def get_had_role(self):
+        """
+        Return all roles associated with this event.
+        @iri: http://www.w3.org/ns/prov#hadRole
+        """
         return self.resource_objects(Role, PROV.hadRole)
 
 
@@ -745,17 +1123,35 @@ class Influence(Resource):
         self.add_type(PROV.Influence)
 
     def set_had_role(self, role):
+        """
+        Specify the role associated with this influence.
+        @iri: http://www.w3.org/ns/prov#hadRole
+        """
         role = Role.ensure_type(role)
         self.add(PROV.hadRole, role)
 
     def get_had_role(self):
+        """
+        Return all roles associated with this influence.
+        @iri: http://www.w3.org/ns/prov#hadRole
+        """
         return self.resource_objects(Role, PROV.hadRole)
 
     def set_had_activity(self, activity):
+        """
+        Specify the *optional* activity of this influence, which used, generated, invalidated,
+        or was the responsibility of some entity.
+        @iri: @iri: http://www.w3.org/ns/prov#hadActivity
+        """
         activity = Activity.ensure_type(activity)
         self.add(PROV.hadActivity, activity)
 
     def get_had_activity(self):
+        """
+        Return the activity of this influence which used, generated, invalidated,
+        or was the responsibility of some entity.
+        @iri: @iri: http://www.w3.org/ns/prov#hadActivity
+        """
         return self.resource_objects(Activity, PROV.hadActivity)
 
 
@@ -771,11 +1167,21 @@ class ActivityInfluence(Influence):
         super().__init__(id)
 
     def set_activity(self, activity):
+        """
+        Specify the activity that had an effect on the character, development, or behavior of another by means of
+        generation, invalidation, communication, or other.
+        @iri: http://www.w3.org/ns/prov#activity
+        """
         activity = Activity.ensure_type(activity)
         self.add(PROV.activity, activity)
         self.add(PROV.influencer, activity)
 
     def get_activity(self):
+        """
+        Return the activity that had an effect on the character, development, or behavior of another by means of
+        generation, invalidation, communication, or other.
+        @iri: http://www.w3.org/ns/prov#activity
+        """
         return self.resource_objects(Activity, PROV.activity)
 
 
@@ -791,11 +1197,21 @@ class AgentInfluence(Influence):
         super().__init__(id)
 
     def set_agent(self, agent):
+        """
+        Specify the agent that had an effect on the character, development, or behavior of another by means
+        of attribution, association, delegation, or other.
+        @iri: http://www.w3.org/ns/prov#agent
+        """
         agent = Agent.ensure_type(agent)
         self.add(PROV.agent, agent)
         self.add(PROV.influencer, agent)
 
     def get_agent(self):
+        """
+        Return the agent that had an effect on the character, development, or behavior of another by means
+        of attribution, association, delegation, or other.
+        @iri: http://www.w3.org/ns/prov#agent
+        """
         return self.resource_objects(Agent, PROV.agent)
 
 
@@ -811,11 +1227,21 @@ class EntityInfluence(Influence):
         super().__init__(id)
 
     def set_entity(self, entity):
+        """
+        Specify the entity that had an effect on the character, development, or behavior of another
+        by means of usage, start, end, derivation, or other.
+        @iri: http://www.w3.org/ns/prov#entity
+        """
         entity = Entity.ensure_type(entity)
         self.add(PROV.entity, entity)
         self.add(PROV.influencer, entity)
 
     def get_entity(self):
+        """
+        Return the entity that had an effect on the character, development, or behavior of another
+        by means of usage, start, end, derivation, or other.
+        @iri: http://www.w3.org/ns/prov#entity
+        """
         self.resource_objects(Entity, PROV.entity)
 
 
@@ -914,17 +1340,33 @@ class Derivation(EntityInfluence):
         self.add_type(PROV.Derivation)
 
     def set_had_usage(self, usage):
+        """
+        Specify the *optional* usage involved in an entity's derivation.
+        @iri: http://www.w3.org/ns/prov#hadUsage
+        """
         usage = Usage.ensure_type(usage)
         self.add(PROV.hadUsage, usage)
 
     def get_had_usage(self):
+        """
+        Return all usages involved in an entity's derivation.
+        @iri: http://www.w3.org/ns/prov#hadUsage
+        """
         return self.resource_objects(Usage, PROV.hadUsage)
 
     def set_had_generation(self, generation):
+        """
+        Specify the *optional* generation involved in an entity's derivation.
+        @iri: http://www.w3.org/ns/prov#hadGeneration
+        """
         generation = Generation.ensure_type(generation)
         self.add(PROV.hadGeneration, generation)
 
     def get_had_generation(self):
+        """
+        Return all generations involved in an entity's derivation.
+        @iri: http://www.w3.org/ns/prov#hadGeneration
+        """
         return self.resource_objects(Generation, PROV.hadGeneration)
 
 
@@ -1003,12 +1445,20 @@ class Association(AgentInfluence):
         self.add_type(PROV.Association)
 
     def set_had_plan(self, plan):
+        """
+        Specify the plan used by the agent in the context of the activity association.
+        @iri: http://www.w3.org/ns/prov#hadPlan
+        """
         plan = Plan.ensure_type(plan)
         self.add(PROV.hadPlan, plan)
         if using_inverse_properties():
             plan.add(PROV.wasPlanOf, self)
 
     def get_had_plan(self):
+        """
+        Return the plan used by the agent in the context of the activity association.
+        @iri: http://www.w3.org/ns/prov#hadPlan
+        """
         return self.resource_objects(Plan, PROV.hadPlan)
 
 

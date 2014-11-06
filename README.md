@@ -55,6 +55,10 @@ More information is available on the project webpage:
 
 https://github.com/tetherless-world/kleio
 
+Continuous integration status details available from travis.ci:
+
+[![Build Status](https://travis-ci.org/tetherless-world/kleio.svg?branch=master)](https://travis-ci.org/tetherless-world/kleio)
+
 The documentation can be built by doing::
 
     $ python setup.py build_sphinx

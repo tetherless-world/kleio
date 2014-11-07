@@ -28,10 +28,11 @@ setup(
     url = 'http://github.com/tetherless-world/kleio',
     description = 'A simple python implementation of the W3C PROV data model',
 #    long_description = readme,
-    install_requires = [ 'rdflib', 'rdflib-jsonld' ],
-    license = 'LGPLv2+',
+    install_requires = [ 'rdflib', 'rdflib-jsonld', 'isodate' ],
+    license = 'MIT',
     packages = packages,
     keywords = 'provenance PROV PROV-O rdf',
-    classifiers = [ 'Development Status :: 3 - Alpha',
-                  'License :: OSI Approved :: GNU Lesser General Public License v2 or later (LGPLv2+)' ]
+    classifiers = [ 'Development Status :: 4 - Beta',
+                  'License :: OSI Approved :: MIT License',
+                  'Programming Language :: Python :: 3' ]
 )

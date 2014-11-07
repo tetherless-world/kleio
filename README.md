@@ -1,7 +1,9 @@
 Kleio
 =====
 
-A python library for W3C Provenance Data Model supporting PROV-O
+A python library for W3C Provenance Data Model supporting PROV-O output.
+
+Kleio is free software released under the MIT license.
 
 Getting Started
 ---------------
@@ -46,7 +48,8 @@ output:
 Features
 --------
 
-...
+* An implementation of the W3C PROV Data Model in Python
+* Supports output as PROV-O in RDF/XML, Turtle, N3, NTriples, and JSON-LD format
 
 Support
 -------

@@ -59,7 +59,7 @@ Continuous integration status details available from Travis CI:
 
 [![Build Status](https://travis-ci.org/tetherless-world/kleio.svg?branch=master)](https://travis-ci.org/tetherless-world/kleio)
 
-The documentation can be built by doing::
+The documentation can be built by doing:
 
     $ python setup.py build_sphinx
 

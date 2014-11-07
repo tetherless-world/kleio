@@ -14,7 +14,11 @@ Features
 Getting Started
 ---------------
 
-With kleio it is easy to create PROV records and output them as PROV-O.
+Kleio can be installed from PyPi using the pip installer:
+
+    $ pip install kleio
+
+From kleio use the prov module to generate PROV records and output PROV-O.
 
 ```python
 from kleio import prov
@@ -53,10 +57,6 @@ output:
 
 Support
 -------
-
-Kleio can be installed from PyPi using the pip installer:
-
-    $ pip install kleio
 
 More information is available on the project webpage:
 

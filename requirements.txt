@@ -1,3 +1,4 @@
 rdflib
 rdflib-jsonld
 isodate
+pypandoc

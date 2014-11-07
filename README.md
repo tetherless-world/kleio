@@ -5,10 +5,16 @@ A python library for W3C Provenance Data Model supporting PROV-O output.
 
 Kleio is free software released under the MIT license.
 
+Features
+--------
+
+* An implementation of the W3C PROV Data Model in Python
+* Supports serialization as PROV-O in RDF/XML, Turtle, N3, NTriples, and JSON-LD formats
+
 Getting Started
 ---------------
 
-Kleio aims to be a pythonic PROV API with support for PROV-O serialization as RDF/XML, N3, Turtle, and JSON-LD.
+With kleio it is easy to create PROV records and output them as PROV-O.
 
 ```python
 from kleio import prov
@@ -45,14 +51,12 @@ output:
     prov:wasInfluencedBy <test:activity> .
 ```
 
-Features
---------
-
-* An implementation of the W3C PROV Data Model in Python
-* Supports output as PROV-O in RDF/XML, Turtle, N3, NTriples, and JSON-LD format
-
 Support
 -------
+
+Kleio can be installed from PyPi using the pip installer:
+
+    $ pip install kleio
 
 More information is available on the project webpage:
 

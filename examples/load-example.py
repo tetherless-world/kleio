@@ -9,9 +9,9 @@ prov.graph.load("load-example.ttl", format="turtle")
 entity = prov.Entity("test:entity")
 
 # define a new entity and say it was derived from "test:entity"
-entity_v2 = prov.Entity("test:entity_v2")
-entity_v2.set_label("derived example entity")
-entity_v2.set_was_derived_from(entity)
+derived_entity = prov.Entity("test:derived_entity")
+derived_entity.set_label("derived example entity")
+derived_entity.set_was_derived_from(entity)
 
 # print out the updated provenance graph
 print(prov.serialize())

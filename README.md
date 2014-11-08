@@ -10,6 +10,7 @@ Features
 
 * An implementation of the W3C PROV Data Model in Python
 * Supports serialization and deserialization as PROV-O in RDF/XML, Turtle, N3, NTriples, and JSON-LD formats
+* Built using [RDFlib](https://github.com/RDFLib/rdflib)
 
 Getting Started
 ---------------

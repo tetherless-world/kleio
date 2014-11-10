@@ -17,3 +17,4 @@ deploy:
     secure: UNheuOR8LP8MFsFLql72kkkjdxvxmJV9cYyRDzF/0KOWCkgQ73LgQqJoL9Gvg8urVdcXzJJ3XchXiGC7ntT8/TS12ldU239ysKon0tVgel4S3Wmt+xnjCnjOSuVl8kfnl6LD28y39Rw6vUBHuCWeksPjJBc6jvkTKuOBVJQfdHw=
   on:
     tags: true
+    all_branches: true

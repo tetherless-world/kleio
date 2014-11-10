@@ -54,9 +54,17 @@ def _absolutize(uri):
     return uri
 
 
+def bundle_entity(bundle):
+    if not isinstance(bundle, Graph):
+        raise TypeError
+    return Bundle(bundle.identifier)
+
+
 def bundle(id):
     uri = URIRef(_absolutize(id))
-    return ds.graph(identifier=uri)
+    b = ds.graph(identifier=uri)
+    Bundle(id=uri, bundle=b)
+    return b
 
 
 class Resource(rdflib.resource.Resource):

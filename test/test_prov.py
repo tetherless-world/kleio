@@ -4,6 +4,7 @@ import unittest
 from datetime import datetime
 from rdflib.resource import Resource
 from rdflib import Graph
+from rdflib.plugin import PluginException
 
 from kleio import prov
 
@@ -206,6 +207,17 @@ class TestPROV(unittest.TestCase):
         ttl = prov.serialize(format="turtle")
         self.assertIsNotNone(ttl)
 
+    def test_serialize_trig(self):
+        entity = prov.Entity("test:entity")
+        entity.set_label("example entity")
+        trig = prov.serialize(format="trig")
+        self.assertIsNotNone(trig)
+
+    def test_serialize_unknown(self):
+        entity = prov.Entity("test:entity")
+        entity.set_label("example entity")
+        self.assertRaises(PluginException, prov.serialize, format="unknown")
+
     def test_serialize_rdfxml(self):
         entity = prov.Entity("test:entity")
         entity.set_label("example entity")
@@ -241,6 +253,12 @@ class TestPROV(unittest.TestCase):
         e2 = prov.Entity(id="test:entity-not-in-bundle")
         self.assertTrue(e1.identifier in bundle.subjects())
         self.assertFalse(e2.identifier in bundle.subjects())
+
+    def test_get_bundle_entity(self):
+        bundle = prov.bundle(id="test:bundle")
+        bundle_entity = prov.bundle_entity(bundle=bundle)
+        self.assertIsNotNone(bundle_entity)
+        self.assertEqual(bundle.identifier, bundle_entity.identifier)
 
 if __name__ == '__main__':
     unittest.main()

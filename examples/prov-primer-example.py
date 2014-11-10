@@ -10,10 +10,10 @@ import rdflib
 from datetime import datetime
 
 DCT = Namespace("http://purl.org/dc/terms/")
-prov.graph.bind("dct", DCT)
+prov.default_graph.bind("dct", DCT)
 
 FOAF = Namespace("http://xmlns.com/foaf/0.1/")
-prov.graph.bind("foaf", FOAF)
+prov.default_graph.bind("foaf", FOAF)
 
 prov.bind_ns("ex", "http://www.example.org#")
 

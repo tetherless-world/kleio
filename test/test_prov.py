@@ -3,6 +3,7 @@ __author__ = 'szednik'
 import unittest
 from datetime import datetime
 from rdflib.resource import Resource
+from rdflib import Graph
 
 from kleio import prov
 
@@ -11,7 +12,7 @@ class TestPROV(unittest.TestCase):
 
     def setUp(self):
         prov.clear_graph()
-        prov.bind_ns("test", "http://tw.rpi.edu/ns/test")
+        prov.bind_ns("test", "http://tw.rpi.edu/ns/test#")
 
     def get_datetime(self, dt):
         return datetime.strptime(dt, "%Y-%m-%dT%H:%M:%S")
@@ -229,6 +230,17 @@ class TestPROV(unittest.TestCase):
         ntriples = prov.serialize(format="nt")
         self.assertIsNotNone(ntriples)
 
+    def test_bundle_factory_method(self):
+        bundle = prov.bundle(id="test:bundle")
+        self.assertIsNotNone(bundle)
+        self.assertTrue(isinstance(bundle, Graph))
+
+    def test_bundled_entity(self):
+        bundle = prov.bundle(id="test:bundle")
+        e1 = prov.Entity(id="test:entity-in-bundle", bundle=bundle)
+        e2 = prov.Entity(id="test:entity-not-in-bundle")
+        self.assertTrue(e1.identifier in bundle.subjects())
+        self.assertFalse(e2.identifier in bundle.subjects())
 
 if __name__ == '__main__':
     unittest.main()

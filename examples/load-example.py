@@ -3,7 +3,7 @@ __author__ = 'szednik'
 from kleio import prov
 
 # load the existing PROV-O graph
-prov.graph.load("load-example.ttl", format="turtle")
+prov.default_graph.load("load-example.ttl", format="turtle")
 
 # get a reference to the existing entity with id="test:entity"
 entity = prov.Entity("test:entity")

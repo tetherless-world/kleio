@@ -1,6 +1,6 @@
 __author__ = 'szednik'
 
-from rdflib import Literal, BNode, Namespace, URIRef, Graph, RDF, RDFS, XSD
+from rdflib import Literal, BNode, Namespace, URIRef, Graph, Dataset, RDF, RDFS, XSD
 import rdflib.resource
 
 """
@@ -8,8 +8,11 @@ import rdflib.resource
 """
 
 PROV = Namespace("http://www.w3.org/ns/prov#")
-graph = Graph()
-graph.bind("prov", PROV)
+
+ds = Dataset(default_union=True)
+ds.bind("prov", PROV)
+default_graph = ds
+
 
 config = {
     "useInverseProperties": False
@@ -24,21 +27,36 @@ def using_inverse_properties():
     return config["useInverseProperties"]
 
 
-def clear_graph():
-    graph.remove((None, None, None))
+def clear_graph(bundle=default_graph):
+    bundle.remove((None, None, None))
 
 
-def serialize(format="xml"):
+def serialize(format="xml", bundle=default_graph):
     if format == "json-ld":
-        return graph.serialize(format='json-ld', indent=4).decode()
+        return bundle.serialize(format='json-ld', indent=4).decode()
     elif format == "nt":
-        return graph.serialize(format='nt').decode()
+        return bundle.serialize(format='nt').decode()
     else:
-        return graph.serialize(format=format, encoding="UTF-8").decode(encoding="UTF-8")
+        return bundle.serialize(format=format, encoding="UTF-8").decode(encoding="UTF-8")
 
 
 def bind_ns(prefix, namespace):
-    graph.bind(prefix, Namespace(namespace))
+    ds.namespace_manager.bind(prefix, Namespace(namespace))
+
+
+def _absolutize(uri):
+    if ":" in uri:
+        (prefix, qname) = uri.split(":")
+        for (p, ns) in ds.namespace_manager.namespaces():
+            if prefix == p:
+                uri = ns+qname
+                break
+    return uri
+
+
+def bundle(id):
+    uri = URIRef(_absolutize(id))
+    return ds.graph(identifier=uri)
 
 
 class Resource(rdflib.resource.Resource):
@@ -47,8 +65,8 @@ class Resource(rdflib.resource.Resource):
     Role
     """
 
-    def __init__(self, id=None):
-        super().__init__(graph, self.node(id))
+    def __init__(self, id=None, bundle=default_graph):
+        super().__init__(bundle, self.node(id))
 
     @staticmethod
     def node(id):
@@ -109,8 +127,8 @@ class Entity(Resource):
     @see: http://www.w3.org/TR/prov-o/#Entity
     """
 
-    def __init__(self, id=None):
-        super().__init__(id)
+    def __init__(self, id=None, bundle=default_graph):
+        super().__init__(id=id, bundle=bundle)
         self.add_type(PROV.Entity)
 
     def set_was_influenced_by(self, resource):
@@ -512,8 +530,8 @@ class Bundle(Entity):
     @see: http://www.w3.org/TR/prov-o/#Bundle
     """
 
-    def __init__(self, id=None):
-        super().__init__(id)
+    def __init__(self, id=None, bundle=default_graph):
+        super().__init__(id=id, bundle=bundle)
         self.add_type(PROV.Bundle)
 
 
@@ -525,8 +543,8 @@ class Collection(Entity):
     @see: http://www.w3.org/TR/prov-o/#Collection
     """
 
-    def __init__(self, id=None):
-        super().__init__(id)
+    def __init__(self, id=None, bundle=default_graph):
+        super().__init__(id=id, bundle=bundle)
         self.add_type(PROV.Collection)
 
     def set_had_member(self, entity):
@@ -561,8 +579,8 @@ class EmptyCollection(Collection):
     @see: http://www.w3.org/TR/prov-o/#EmptyCollection
     """
 
-    def __init__(self, id=None):
-        super().__init__(id)
+    def __init__(self, id=None, bundle=default_graph):
+        super().__init__(id=id, bundle=bundle)
         self.add_type(PROV.EmptyCollection)
 
     def set_had_member(self, entity):
@@ -585,8 +603,8 @@ class Plan(Entity):
     @see: http://www.w3.org/TR/prov-o/#Plan
     """
 
-    def __init__(self, id=None):
-        super().__init__(id)
+    def __init__(self, id=None, bundle=default_graph):
+        super().__init__(id=id, bundle=bundle)
         self.add_type(PROV.Plan)
 
 
@@ -599,8 +617,8 @@ class Location(Resource):
     @see: http://www.w3.org/TR/prov-o/#Location
     """
 
-    def __init__(self, id=None):
-        super().__init__(id)
+    def __init__(self, id=None, bundle=default_graph):
+        super().__init__(id=id, bundle=bundle)
         self.add_type(PROV.Location)
 
 
@@ -612,8 +630,8 @@ class Activity(Resource):
     @see: http://www.w3.org/TR/prov-o/#Activity
     """
 
-    def __init__(self, id=None):
-        super().__init__(id)
+    def __init__(self, id=None, bundle=default_graph):
+        super().__init__(id=id, bundle=bundle)
         self.add_type(PROV.Activity)
 
     def set_influenced(self, entity):
@@ -951,8 +969,8 @@ class Agent(Resource):
     @see: http://www.w3.org/TR/prov-o/#Agent
     """
 
-    def __init__(self, id=None):
-        super().__init__(id)
+    def __init__(self, id=None, bundle=default_graph):
+        super().__init__(id=id, bundle=bundle)
         self.add_type(PROV.Agent)
 
     def set_was_influenced_by(self, resource):
@@ -1035,8 +1053,8 @@ class Person(Agent):
     @see: http://www.w3.org/TR/prov-o/#Person
     """
 
-    def __init__(self, id=None):
-        super().__init__(id)
+    def __init__(self, id=None, bundle=default_graph):
+        super().__init__(id=id, bundle=bundle)
         self.add_type(PROV.Person)
 
 
@@ -1047,8 +1065,8 @@ class Organization(Agent):
     @see: http://www.w3.org/ns/prov#Organization
     """
 
-    def __init__(self, id=None):
-        super().__init__(id)
+    def __init__(self, id=None, bundle=default_graph):
+        super().__init__(id=id, bundle=bundle)
         self.add_type(PROV.Organization)
 
 
@@ -1059,8 +1077,8 @@ class SoftwareAgent(Agent):
     @see: http://www.w3.org/TR/prov-o/#SoftwareAgent
     """
 
-    def __init__(self, id=None):
-        super().__init__(id)
+    def __init__(self, id=None, bundle=default_graph):
+        super().__init__(id=id, bundle=bundle)
         self.add_type(PROV.SoftwareAgent)
 
 
@@ -1074,8 +1092,8 @@ class InstantaneousEvent(Resource):
     @see: http://www.w3.org/TR/prov-o/#InstantaneousEvent
     """
 
-    def __init__(self, id=None):
-        super().__init__(id)
+    def __init__(self, id=None, bundle=default_graph):
+        super().__init__(id=id, bundle=bundle)
         self.add_type(PROV.InstantaneousEvent)
 
     def set_at_location(self, location):
@@ -1134,8 +1152,8 @@ class Influence(Resource):
     @see: http://www.w3.org/TR/prov-o/#Influence
     """
 
-    def __init__(self, id=None):
-        super().__init__(id)
+    def __init__(self, id=None, bundle=default_graph):
+        super().__init__(id=id, bundle=bundle)
         self.add_type(PROV.Influence)
 
     def set_had_role(self, role):
@@ -1179,8 +1197,8 @@ class ActivityInfluence(Influence):
     @see: http://www.w3.org/TR/prov-o/#ActivityInfluence
     """
 
-    def __init__(self, id=None):
-        super().__init__(id)
+    def __init__(self, id=None, bundle=default_graph):
+        super().__init__(id=id, bundle=bundle)
 
     def set_activity(self, activity):
         """
@@ -1209,8 +1227,8 @@ class AgentInfluence(Influence):
     @see: http://www.w3.org/TR/prov-o/#AgentInfluence
     """
 
-    def __init__(self, id=None):
-        super().__init__(id)
+    def __init__(self, id=None, bundle=default_graph):
+        super().__init__(id=id, bundle=bundle)
 
     def set_agent(self, agent):
         """
@@ -1239,8 +1257,8 @@ class EntityInfluence(Influence):
     @see: http://www.w3.org/TR/prov-o/#EntityInfluence
     """
 
-    def __init__(self, id=None):
-        super().__init__(id)
+    def __init__(self, id=None, bundle=default_graph):
+        super().__init__(id, bundle=bundle)
 
     def set_entity(self, entity):
         """
@@ -1269,8 +1287,8 @@ class Generation(InstantaneousEvent, ActivityInfluence):
     @see: http://www.w3.org/TR/prov-o/#Generation
     """
 
-    def __init__(self, id=None):
-        super().__init__(id)
+    def __init__(self, id=None, bundle=default_graph):
+        super().__init__(id=id, bundle=bundle)
         self.add_type(PROV.Generation)
 
 
@@ -1284,8 +1302,8 @@ class Start(InstantaneousEvent, EntityInfluence):
     @see: http://www.w3.org/TR/prov-o/#Start
     """
 
-    def __init__(self, id=None):
-        super().__init__(id)
+    def __init__(self, id=None, bundle=default_graph):
+        super().__init__(id, bundle=bundle)
         self.add_type(PROV.Start)
 
 
@@ -1299,8 +1317,8 @@ class End(InstantaneousEvent, EntityInfluence):
     @see: http://www.w3.org/TR/prov-o/#End
     """
 
-    def __init__(self, id=None):
-        super().__init__(id)
+    def __init__(self, id=None, bundle=default_graph):
+        super().__init__(id=id, bundle=bundle)
         self.add_type(PROV.End)
 
 
@@ -1313,8 +1331,8 @@ class Invalidation(InstantaneousEvent, ActivityInfluence):
     @see: http://www.w3.org/TR/prov-o/#Invalidation
     """
 
-    def __init__(self, id=None):
-        super().__init__(id)
+    def __init__(self, id=None, bundle=default_graph):
+        super().__init__(id=id, bundle=bundle)
         self.add_type(PROV.Invalidation)
 
 
@@ -1325,8 +1343,8 @@ class Communication(ActivityInfluence):
     @see: http://www.w3.org/TR/prov-o/#Communication
     """
 
-    def __init__(self, id=None):
-        super().__init__(id)
+    def __init__(self, id=None, bundle=default_graph):
+        super().__init__(id=id, bundle=bundle)
         self.add_type(PROV.Communication)
 
 
@@ -1338,8 +1356,8 @@ class Usage(InstantaneousEvent, EntityInfluence):
     @see: http://www.w3.org/TR/prov-o/#Usage
     """
 
-    def __init__(self, id=None):
-        super().__init__(id)
+    def __init__(self, id=None, bundle=default_graph):
+        super().__init__(id=id, bundle=bundle)
         self.add_type(PROV.Usage)
 
 
@@ -1351,8 +1369,8 @@ class Derivation(EntityInfluence):
     @see: http://www.w3.org/TR/prov-o/#Derivation
     """
 
-    def __init__(self, id=None):
-        super().__init__(id)
+    def __init__(self, id=None, bundle=default_graph):
+        super().__init__(id=id, bundle=bundle)
         self.add_type(PROV.Derivation)
 
     def set_had_usage(self, usage):
@@ -1395,8 +1413,8 @@ class Revision(Derivation):
     @see: http://www.w3.org/TR/prov-o/#Revision
     """
 
-    def __init__(self, id=None):
-        super().__init__(id)
+    def __init__(self, id=None, bundle=default_graph):
+        super().__init__(id=id, bundle=bundle)
         self.add_type(PROV.Revision)
 
 
@@ -1413,8 +1431,8 @@ class PrimarySource(Derivation):
     @see: http://www.w3.org/TR/prov-o/#PrimarySource
     """
 
-    def __init__(self, id=None):
-        super().__init__(id)
+    def __init__(self, id=None, bundle=default_graph):
+        super().__init__(id=id, bundle=bundle)
         self.add_type(PROV.PrimarySource)
 
 
@@ -1426,8 +1444,8 @@ class Quotation(Derivation):
     @see: http://www.w3.org/TR/prov-o/#Quotation
     """
 
-    def __init__(self, id=None):
-        super().__init__(id)
+    def __init__(self, id=None, bundle=default_graph):
+        super().__init__(id=id, bundle=bundle)
         self.add_type(PROV.Quotation)
 
 
@@ -1442,8 +1460,8 @@ class Delegation(AgentInfluence):
     @see: http://www.w3.org/TR/prov-o/#Delegation
     """
 
-    def __init__(self, id=None):
-        super().__init__(id)
+    def __init__(self, id=None, bundle=default_graph):
+        super().__init__(id=id, bundle=bundle)
         self.add_type(PROV.Delegation)
 
 
@@ -1456,8 +1474,8 @@ class Association(AgentInfluence):
     @see: http://www.w3.org/TR/prov-o/#Association
     """
 
-    def __init__(self, id=None):
-        super().__init__(id)
+    def __init__(self, id=None, bundle=default_graph):
+        super().__init__(id=id, bundle=bundle)
         self.add_type(PROV.Association)
 
     def set_had_plan(self, plan):
@@ -1487,8 +1505,8 @@ class Attribution(AgentInfluence):
     @see: http://www.w3.org/TR/prov-o/#Attribution
     """
 
-    def __init__(self, id=None):
-        super().__init__(id)
+    def __init__(self, id=None, bundle=default_graph):
+        super().__init__(id=id, bundle=bundle)
         self.add_type(PROV.Attribution)
 
 
@@ -1500,6 +1518,6 @@ class Role(Resource):
     @see: http://www.w3.org/TR/prov-o/#Role
     """
 
-    def __init__(self, id=None):
-        super().__init__(id)
+    def __init__(self, id=None, bundle=default_graph):
+        super().__init__(id=id, bundle=bundle)
         self.add_type(PROV.Role)

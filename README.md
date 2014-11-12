@@ -1,7 +1,7 @@
 Kleio
 =====
 
-[![Build Status](https://travis-ci.org/tetherless-world/kleio.svg?branch=master)](https://travis-ci.org/tetherless-world/kleio) [![Latest Release](https://badge.fury.io/py/kleio.svg)](http://badge.fury.io/py/kleio) [![Downloads](https://pypip.in/download/kleio/badge.svg)](https://pypi.python.org/pypi/kleio/)
+[![Build Status](https://travis-ci.org/tetherless-world/kleio.svg?branch=master)](https://travis-ci.org/tetherless-world/kleio) [![License](http://img.shields.io/badge/license-MIT-brightgreen.svg)](https://github.com/tetherless-world/kleio/blob/master/LICENSE) [![Latest Release](https://badge.fury.io/py/kleio.svg)](http://badge.fury.io/py/kleio) [![Downloads](https://pypip.in/download/kleio/badge.svg)](https://pypi.python.org/pypi/kleio/)
 
 A python library for W3C Provenance Data Model supporting PROV-O.
 

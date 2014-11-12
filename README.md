@@ -16,7 +16,11 @@ Features
 Getting Started
 ---------------
 
-Kleio can be installed from PyPi using the pip installer:
+The tagged releases of kleio are available from the Python Package Index (PyPI)
+
+[![Latest Release](https://badge.fury.io/py/kleio.svg)](http://badge.fury.io/py/kleio)
+
+Kleio can be installed from PyPI using the pip installer:
 
     $ pip install kleio
 

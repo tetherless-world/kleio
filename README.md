@@ -1,6 +1,8 @@
 Kleio
 =====
 
+[![Build Status](https://travis-ci.org/tetherless-world/kleio.svg?branch=master)](https://travis-ci.org/tetherless-world/kleio) [![Latest Release](https://badge.fury.io/py/kleio.svg)](http://badge.fury.io/py/kleio) [![Downloads](https://pypip.in/download/kleio/badge.svg)](https://pypi.python.org/pypi/kleio/)
+
 A python library for W3C Provenance Data Model supporting PROV-O.
 
 Kleio is free software released under the MIT license.
@@ -15,10 +17,6 @@ Features
 
 Getting Started
 ---------------
-
-The tagged releases of kleio are available from the Python Package Index (PyPI)
-
-[![Latest Release](https://badge.fury.io/py/kleio.svg)](http://badge.fury.io/py/kleio)
 
 Kleio can be installed from PyPI using the pip installer:
 
@@ -85,7 +83,7 @@ https://github.com/tetherless-world/kleio
 
 Continuous integration status details available from Travis CI:
 
-[![Build Status](https://travis-ci.org/tetherless-world/kleio.svg?branch=master)](https://travis-ci.org/tetherless-world/kleio)
+https://travis-ci.org/tetherless-world/kleio
 
 The documentation can be built by doing:
 

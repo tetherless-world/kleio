@@ -1,3 +1,5 @@
+This example shows provenance bundles expressed as named rdf graphs serialized in [TRiG](http://www.w3.org/TR/trig/)
+
 serialize command:
 ```python
 print(prov.serialize(format="trig"))

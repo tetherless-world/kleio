@@ -1,3 +1,4 @@
+serialize command:
 ```python
 print(prov.serialize(format="trig"))
 ```
@@ -28,6 +29,7 @@ output:
 }
 ```
 
+serialize command:
 ```python
 print(prov.serialize(format="trig", bundle=my_bundle))
 ```

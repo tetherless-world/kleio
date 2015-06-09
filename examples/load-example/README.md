@@ -1,4 +1,4 @@
-This example shows a script that loads a provenance trace from load-example.ttl, adds a new entity to the provenance trace, and serializes the modified trace in RDF/XML.
+This example shows a script that loads a provenance trace from load-example.ttl, defines a new entity within the provenance trace, and serializes the modified trace as RDF/XML.
 
 output:
 ```xml

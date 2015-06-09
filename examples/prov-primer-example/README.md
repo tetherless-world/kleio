@@ -1,3 +1,5 @@
+This example is based off the examples contained within the [W3C PROV primer]( http://www.w3.org/TR/prov-primer)
+
 output:
 ```
 @prefix dct: <http://purl.org/dc/terms/> .

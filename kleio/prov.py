@@ -40,9 +40,10 @@ def serialize(format="xml", bundle=default_graph):
         return bundle.serialize(format=format, encoding="UTF-8").decode(encoding="UTF-8")
 
 
-def bind_ns(prefix, namespace):
-    ds.namespace_manager.bind(prefix, Namespace(namespace))
-
+def ns(prefix, namespace):
+    ns_obj = Namespace(namespace)
+    ds.namespace_manager.bind(prefix, ns_obj)
+    return ns_obj
 
 def _absolutize(uri):
     if ":" in uri:

@@ -2,7 +2,7 @@ __author__ = 'szednik'
 
 from kleio import prov
 
-prov.bind_ns("test", "http://test.com/ns#")
+prov.ns("test", "http://test.com/ns#")
 
 my_bundle = prov.bundle(id="test:bundle")
 bundle_entity = prov.bundle_entity(bundle=my_bundle)

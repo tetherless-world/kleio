@@ -27,7 +27,7 @@ From kleio use the prov module to generate PROV records and output PROV-O.
 ```python
 from kleio import prov
 
-prov.bind_ns("test", "http://tw.rpi.edu/ns/test#")
+prov.ns("test", "http://tw.rpi.edu/ns/test#")
 
 entity = prov.Entity("test:entity")
 entity.set_label("example entity")

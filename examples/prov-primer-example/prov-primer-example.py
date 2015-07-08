@@ -4,18 +4,13 @@ __author__ = 'szednik'
 This example was taken from http://www.w3.org/TR/prov-primer
 """
 
-from kleio import prov
-from rdflib import Namespace
-import rdflib
 from datetime import datetime
+import rdflib
+from kleio import prov
 
-DCT = Namespace("http://purl.org/dc/terms/")
-prov.default_graph.bind("dct", DCT)
-
-FOAF = Namespace("http://xmlns.com/foaf/0.1/")
-prov.default_graph.bind("foaf", FOAF)
-
-prov.bind_ns("ex", "http://www.example.org#")
+DCT = prov.ns("dct", "http://purl.org/dc/terms/")
+FOAF = prov.ns("foaf", "http://xmlns.com/foaf/0.1/")
+prov.ns("ex", "http://www.example.org#")
 
 # Entities
 

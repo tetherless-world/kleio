@@ -13,7 +13,7 @@ class TestPROV(unittest.TestCase):
 
     def setUp(self):
         prov.clear_graph()
-        prov.bind_ns("test", "http://tw.rpi.edu/ns/test#")
+        prov.ns("test", "http://tw.rpi.edu/ns/test#")
 
     def get_datetime(self, dt):
         return datetime.strptime(dt, "%Y-%m-%dT%H:%M:%S")

@@ -9,10 +9,14 @@ import rdflib.resource
 
 PROV = Namespace("http://www.w3.org/ns/prov#")
 
+context = {"prov": "http://www.w3.org/ns/prov#",
+           "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+           "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+           "xsd": "http://www.w3.org/2001/XMLSchema#"}
+
 ds = Dataset(default_union=True)
 ds.bind("prov", PROV)
 default_graph = ds
-
 
 config = {
     "useInverseProperties": False
@@ -33,7 +37,7 @@ def clear_graph(bundle=default_graph):
 
 def serialize(format="xml", bundle=default_graph):
     if format == "json-ld":
-        return bundle.serialize(format='json-ld', indent=4).decode()
+        return bundle.serialize(format='json-ld', context=context, indent=4).decode()
     elif format == "nt":
         return bundle.serialize(format='nt').decode()
     else:
@@ -45,12 +49,13 @@ def ns(prefix, namespace):
     ds.namespace_manager.bind(prefix, ns_obj)
     return ns_obj
 
+
 def _absolutize(uri):
     if ":" in uri:
         (prefix, qname) = uri.split(":")
         for (p, ns) in ds.namespace_manager.namespaces():
             if prefix == p:
-                uri = ns+qname
+                uri = ns + qname
                 break
     return uri
 

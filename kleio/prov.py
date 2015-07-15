@@ -37,7 +37,7 @@ def clear_graph(bundle=default_graph):
 
 def serialize(format="xml", bundle=default_graph):
     if format == "json-ld":
-        return bundle.serialize(format='json-ld', context=context, indent=4).decode()
+        return bundle.serialize(format='json-ld', context=context, indent=2).decode()
     elif format == "nt":
         return bundle.serialize(format='nt').decode()
     else:

@@ -13,5 +13,10 @@ derived_entity = prov.Entity("test:derived_entity")
 derived_entity.set_label("derived example entity")
 derived_entity.set_was_derived_from(entity)
 
+# note, right now the context of the import is not retained
+# add test and foaf namespace to prov.context for serialization
+prov.context.update({"test": "http://tw.rpi.edu/ns/test#",
+                     "foaf": "http://xmlns.com/foaf/0.1/"})
+
 # print out the updated provenance graph
 print(prov.serialize(format="json-ld"))

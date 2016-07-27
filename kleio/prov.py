@@ -1,7 +1,8 @@
-__author__ = 'szednik'
-
 from rdflib import Literal, BNode, Namespace, URIRef, Graph, Dataset, RDF, RDFS, XSD
 import rdflib.resource
+
+__author__ = 'szednik'
+
 
 """
 @newfield iri: IRI
@@ -19,7 +20,8 @@ ds.bind("prov", PROV)
 default_graph = ds
 
 config = {
-    "useInverseProperties": False
+    "useInverseProperties": False,
+    "assertSuperProperties": True
 }
 
 
@@ -27,8 +29,16 @@ def set_use_inverse_properties(flag=False):
     config["useInverseProperties"] = flag
 
 
+def set_assert_super_properties(flag=False):
+    config["assertSuperProperties"] = flag
+
+
 def using_inverse_properties():
     return config["useInverseProperties"]
+
+
+def asserting_super_properties():
+    return config["assertSuperProperties"]
 
 
 def clear_graph(bundle=default_graph):
@@ -152,7 +162,9 @@ class Entity(Resource):
         """
         resource = Resource.ensure_type(resource)
         self.add(PROV.wasInfluencedBy, resource)
-        resource.add(PROV.influenced, self)
+
+        if using_inverse_properties():
+            resource.add(PROV.influenced, self)
 
     def get_was_influenced_by(self):
         """
@@ -167,8 +179,11 @@ class Entity(Resource):
         @iri: http://www.w3.org/ns/prov#wasAttributedTo
         """
         agent = Agent.ensure_type(agent)
-        self.set_was_influenced_by(agent)
         self.add(PROV.wasAttributedTo, agent)
+
+        if asserting_super_properties():
+            self.set_was_influenced_by(agent)
+
         if using_inverse_properties():
             agent.add(PROV.contributed, self)
 
@@ -187,8 +202,10 @@ class Entity(Resource):
         """
         attribution = Attribution(id)
         self.add(PROV.qualifiedAttribution, attribution)
+
         if using_inverse_properties():
             attribution.add(PROV.qualifiedAttributionOf, self)
+
         attribution.set_agent(agent)
         self.set_was_attributed_to(agent)
         return attribution
@@ -206,9 +223,13 @@ class Entity(Resource):
         @iri: http://www.w3.org/ns/prov#wasGeneratedBy
         """
         activity = Activity.ensure_type(activity)
-        self.set_was_influenced_by(activity)
         self.add(PROV.wasGeneratedBy, activity)
-        activity.add(PROV.generated, self)
+
+        if asserting_super_properties():
+            self.set_was_influenced_by(activity)
+
+        if using_inverse_properties():
+            activity.add(PROV.generated, self)
 
     def get_was_generated_by(self):
         """
@@ -248,8 +269,11 @@ class Entity(Resource):
         @iri: http://www.w3.org/ns/prov#wasDerivedFrom
         """
         entity = Entity.ensure_type(entity)
-        self.set_was_influenced_by(entity)
         self.add(PROV.wasDerivedFrom, entity)
+
+        if asserting_super_properties():
+            self.set_was_influenced_by(entity)
+
         if using_inverse_properties():
             entity.add(PROV.hadDerivation, self)
 
@@ -287,8 +311,11 @@ class Entity(Resource):
         @iri: http://www.w3.org/ns/prov#wasRevisionOf
         """
         entity = Entity.ensure_type(entity)
-        self.set_was_derived_from(entity)
         self.add(PROV.wasRevisionOf, entity)
+
+        if asserting_super_properties():
+            self.set_was_derived_from(entity)
+
         if using_inverse_properties():
             entity.add(PROV.hadRevision, self)
 
@@ -327,8 +354,11 @@ class Entity(Resource):
         @iri: http://www.w3.org/ns/prov#wasQuotedFrom
         """
         entity = Entity.ensure_type(entity)
-        self.set_was_derived_from(entity)
         self.add(PROV.wasQuotedFrom, entity)
+
+        if asserting_super_properties():
+            self.set_was_derived_from(entity)
+
         if using_inverse_properties():
             entity.add(PROV.quotedAs, self)
 
@@ -367,8 +397,11 @@ class Entity(Resource):
         @iri: http://www.w3.org/ns/prov#hadPrimarySource
         """
         entity = Entity.ensure_type(entity)
-        self.set_was_derived_from(entity)
         self.add(PROV.hadPrimarySource, entity)
+
+        if asserting_super_properties():
+            self.set_was_derived_from(entity)
+
         if using_inverse_properties():
             entity.add(PROV.wasPrimarySourceOf, self)
 
@@ -407,9 +440,13 @@ class Entity(Resource):
         @iri: http://www.w3.org/ns/prov#wasInvalidatedBy
         """
         activity = Activity.ensure_type(activity)
-        self.set_was_influenced_by(activity)
         self.add(PROV.wasInvalidatedBy, activity)
-        activity.add(PROV.invalidated, self)
+
+        if asserting_super_properties():
+            self.set_was_influenced_by(activity)
+
+        if using_inverse_properties():
+            activity.add(PROV.invalidated, self)
 
     def get_was_invalidated_by(self):
         """
@@ -464,8 +501,11 @@ class Entity(Resource):
         @iri: http://www.w3.org/ns/prov#specializationOf
         """
         entity = Entity.ensure_type(entity)
-        self.set_alternate_of(entity)
         self.add(PROV.specializationOf, entity)
+
+        if asserting_super_properties():
+            self.set_alternate_of(entity)
+
         if using_inverse_properties():
             entity.add(PROV.generalizationOf, self)
 
@@ -567,8 +607,11 @@ class Collection(Entity):
         @iri: http://www.w3.org/ns/prov#hadMember
         """
         entity = Entity.ensure_type(entity)
-        self.set_was_influenced_by(entity)
         self.add(PROV.hadMember, entity)
+
+        if asserting_super_properties():
+            self.set_was_influenced_by(entity)
+
         if using_inverse_properties():
             entity.add(PROV.wasMemberOf, self)
 
@@ -669,7 +712,9 @@ class Activity(Resource):
         @iri: http://www.w3.org/ns/prov#wasInfluencedBy
         """
         self.add(PROV.wasInfluencedBy, resource)
-        resource.add(PROV.influenced, self)
+
+        if using_inverse_properties():
+            resource.add(PROV.influenced, self)
 
     def get_was_influenced_by(self):
         """
@@ -684,8 +729,11 @@ class Activity(Resource):
         @iri: http://www.w3.org/ns/prov#used
         """
         entity = Entity.ensure_type(entity)
-        self.set_was_influenced_by(entity)
         self.add(PROV.used, entity)
+
+        if asserting_super_properties():
+            self.set_was_influenced_by(entity)
+
         if using_inverse_properties():
             entity.add(PROV.wasUsedBy, self)
 
@@ -729,9 +777,13 @@ class Activity(Resource):
         @iri: http://www.w3.org/ns/prov#generated
         """
         entity = Entity.ensure_type(entity)
-        self.set_influenced(entity)
         self.add(PROV.generated, entity)
-        entity.add(PROV.wasGeneratedBy, self)
+
+        if asserting_super_properties():
+            self.set_influenced(entity)
+
+        if using_inverse_properties():
+            entity.add(PROV.wasGeneratedBy, self)
 
     def get_generated(self):
         """
@@ -746,9 +798,13 @@ class Activity(Resource):
         @iri: http://www.w3.org/ns/prov#invalidated
         """
         entity = Entity.ensure_type(entity)
-        self.set_influenced(entity)
         self.add(PROV.invalidated, entity)
-        entity.add(PROV.wasInvalidatedBy, self)
+
+        if asserting_super_properties():
+            self.set_influenced(entity)
+
+        if using_inverse_properties():
+            entity.add(PROV.wasInvalidatedBy, self)
 
     def get_invalidated(self):
         """
@@ -763,8 +819,11 @@ class Activity(Resource):
         @iri: http://www.w3.org/ns/prov#wasInformedBy
         """
         activity = Activity.ensure_type(activity)
-        self.set_was_influenced_by(activity)
         self.add(PROV.wasInformedBy, activity)
+
+        if asserting_super_properties():
+            self.set_was_influenced_by(activity)
+
         if using_inverse_properties():
             activity.add(PROV.informed, activity)
 
@@ -804,8 +863,11 @@ class Activity(Resource):
         @iri: http://www.w3.org/ns/prov#wasAssociatedWith
         """
         agent = Agent.ensure_type(agent)
-        self.set_was_influenced_by(agent)
         self.add(PROV.wasAssociatedWith, agent)
+
+        if asserting_super_properties():
+            self.set_was_influenced_by(agent)
+
         if using_inverse_properties():
             agent.add(PROV.wasAssociateFor, self)
 
@@ -847,8 +909,11 @@ class Activity(Resource):
         @iri: http://www.w3.org/ns/prov#wasStartedBy
         """
         entity = Entity.ensure_type(entity)
-        self.set_was_influenced_by(entity)
         self.add(PROV.wasStartedBy, entity)
+
+        if asserting_super_properties():
+            self.set_was_influenced_by(entity)
+
         if using_inverse_properties():
             entity.add(PROV.started, self)
 
@@ -891,8 +956,11 @@ class Activity(Resource):
         @iri: http://www.w3.org/ns/prov#wasEndedBy
         """
         entity = Entity.ensure_type(entity)
-        self.set_was_influenced_by(entity)
         self.add(PROV.wasEndedBy, entity)
+
+        if asserting_super_properties():
+            self.set_was_influenced_by(entity)
+
         if using_inverse_properties():
             entity.add(PROV.ended, self)
 
@@ -1007,8 +1075,11 @@ class Agent(Resource):
         @iri: http://www.w3.org/ns/prov#actedOnBehalfOf
         """
         agent = Agent.ensure_type(agent)
-        self.set_was_influenced_by(agent)
         self.add(PROV.actedOnBehalfOf, agent)
+
+        if asserting_super_properties():
+            self.set_was_influenced_by(agent)
+
         if using_inverse_properties():
             agent.add(PROV.hadDelegate, self)
 
@@ -1222,7 +1293,9 @@ class ActivityInfluence(Influence):
         """
         activity = Activity.ensure_type(activity)
         self.add(PROV.activity, activity)
-        self.add(PROV.influencer, activity)
+
+        if asserting_super_properties():
+            self.add(PROV.influencer, activity)
 
     def get_activity(self):
         """
@@ -1252,7 +1325,9 @@ class AgentInfluence(Influence):
         """
         agent = Agent.ensure_type(agent)
         self.add(PROV.agent, agent)
-        self.add(PROV.influencer, agent)
+
+        if asserting_super_properties():
+            self.add(PROV.influencer, agent)
 
     def get_agent(self):
         """
@@ -1282,7 +1357,9 @@ class EntityInfluence(Influence):
         """
         entity = Entity.ensure_type(entity)
         self.add(PROV.entity, entity)
-        self.add(PROV.influencer, entity)
+
+        if asserting_super_properties():
+            self.add(PROV.influencer, entity)
 
     def get_entity(self):
         """

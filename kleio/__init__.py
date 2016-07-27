@@ -1,6 +1,6 @@
 __author__ = 'szednik'
-__version__ = "0.2.2"
-__date__ = "2016/05/24"
+__version__ = "0.2.3"
+__date__ = "2016/07/27"
 __docformat__ = "restructuredtext en"
 
 __all__ = [
